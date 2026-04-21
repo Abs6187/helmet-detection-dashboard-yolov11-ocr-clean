@@ -87,6 +87,7 @@ Common options:
 ## Automated Tests
 
 ```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-test.txt
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
