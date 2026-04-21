@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Local captured runtime snapshots
+static/no_helmet/
+static/triples/
+
+# Full downloaded raw dataset (keep local, do not push)
+static/Riding.v1i.yolov8/

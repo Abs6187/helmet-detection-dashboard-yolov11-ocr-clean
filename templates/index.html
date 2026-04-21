@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Traffic Violation Dashboard</title>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+        crossorigin="anonymous"
+    >
+    <style>
+        :root {
+            --bg: #f4f7f3;
+            --surface: #ffffff;
+            --text: #17201e;
+            --muted: #5a6a67;
+            --accent: #007a5a;
+            --accent-soft: #d5efe6;
+            --warning: #a73b00;
+            --warning-soft: #fce4d6;
+            --radius: 8px;
+            --border: #dbe5df;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top right, #d4ebe4 0, transparent 30%),
+                radial-gradient(circle at 20% 20%, #f7efe4 0, transparent 35%),
+                var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .dashboard-shell {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 24px 12px 32px;
+        }
+
+        .header-band {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+
+        .header-title {
+            font-size: clamp(1.4rem, 2vw, 2rem);
+            font-weight: 700;
+            letter-spacing: 0;
+            margin: 0;
+        }
+
+        .header-subtitle {
+            color: var(--muted);
+            margin: 6px 0 0;
+            font-size: 0.96rem;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .metric-card {
+            background: #f9fcfa;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+            min-height: 86px;
+        }
+
+        .metric-label {
+            color: var(--muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .metric-value {
+            font-size: 1.45rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .tabs-wrap {
+            margin-top: 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--muted);
+            border-radius: 6px;
+            border: 1px solid transparent;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--accent-soft);
+            color: var(--text);
+            border-color: #b5d9cb;
+        }
+
+        .tab-tools {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 14px 0;
+        }
+
+        .tab-tools .search-input {
+            min-width: 250px;
+            flex: 1;
+        }
+
+        .category-meta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .category-dot {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--accent);
+        }
+
+        .offender-item[hidden] {
+            display: none !important;
+        }
+
+        .violation-card {
+            height: 100%;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            overflow: hidden;
+            transition: box-shadow 120ms ease;
+        }
+
+        .violation-card:hover {
+            box-shadow: 0 10px 18px rgba(16, 30, 24, 0.08);
+        }
+
+        .card-image-wrap {
+            height: 180px;
+            background: #eff4f1;
+            border-bottom: 1px solid var(--border);
+            display: grid;
+            place-items: center;
+        }
+
+        .card-image-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-no-image {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .status-pill {
+            border-radius: 999px;
+            font-size: 0.78rem;
+            padding: 4px 10px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .status-applied {
+            background: var(--accent-soft);
+            color: #0f4d39;
+        }
+
+        .status-pending {
+            background: var(--warning-soft);
+            color: var(--warning);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .empty-state {
+            border: 1px dashed #b7c6bf;
+            border-radius: var(--radius);
+            color: var(--muted);
+            text-align: center;
+            padding: 26px 14px;
+            background: #fbfdfa;
+        }
+
+        @media (max-width: 768px) {
+            .metric-grid {
+                grid-template-columns: repeat(2, minmax(120px, 1fr));
+            }
+
+            .card-image-wrap {
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="dashboard-shell">
+    <section class="header-band">
+        <h1 class="header-title">Traffic Violation Dashboard</h1>
+        <p class="header-subtitle">Review captured offences, update case details, and track fine processing status.</p>
+        <div class="metric-grid">
+            <article class="metric-card">
+                <div class="metric-label">Total Cases</div>
+                <div class="metric-value" data-summary="total_cases">{{ summary.total_cases }}</div>
+            </article>
+            <article class="metric-card">
+                <div class="metric-label">Fine Applied</div>
+                <div class="metric-value" data-summary="fine_applied">{{ summary.fine_applied }}</div>
+            </article>
+            <article class="metric-card">
+                <div class="metric-label">Fine Pending</div>
+                <div class="metric-value" data-summary="fine_pending">{{ summary.fine_pending }}</div>
+            </article>
+            <article class="metric-card">
+                <div class="metric-label">Total Fine Amount</div>
+                <div class="metric-value" data-summary="total_fine_amount" data-format="currency">{{ summary.total_fine_amount }}</div>
+            </article>
+        </div>
+    </section>
+
+    <section class="tabs-wrap">
+        <ul class="nav nav-tabs" id="offenderTabs" role="tablist">
+            {% for category, meta in category_meta.items() %}
+            <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link {% if loop.first %}active{% endif %}"
+                    id="{{ category }}-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#{{ category }}"
+                    type="button"
+                    role="tab"
+                    aria-controls="{{ category }}"
+                    aria-selected="{% if loop.first %}true{% else %}false{% endif %}"
+                >
+                    {{ meta.label }}
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="tab-content pt-2">
+            {% for category, offender_list in offenders.items() %}
+            <div
+                class="tab-pane fade {% if loop.first %}show active{% endif %}"
+                id="{{ category }}"
+                role="tabpanel"
+                aria-labelledby="{{ category }}-tab"
+            >
+                <div class="tab-tools">
+                    <input
+                        type="search"
+                        class="form-control search-input"
+                        data-search-category="{{ category }}"
+                        placeholder="Search by name, plate, location, or folder"
+                    >
+                    <div class="form-check form-switch">
+                        <input class="form-check-input pending-toggle" type="checkbox" id="pending-{{ category }}" data-pending-category="{{ category }}">
+                        <label class="form-check-label" for="pending-{{ category }}">Only Pending</label>
+                    </div>
+                </div>
+
+                <div class="category-meta">
+                    <span class="category-dot"><span class="dot"></span><span>Total: <strong data-category-total="{{ category }}">{{ summary.categories[category].total_cases }}</strong></span></span>
+                    <span>Fine Applied: <strong data-category-applied="{{ category }}">{{ summary.categories[category].fine_applied }}</strong></span>
+                    <span>Fine Pending: <strong data-category-pending="{{ category }}">{{ summary.categories[category].fine_pending }}</strong></span>
+                </div>
+
+                {% if offender_list|length == 0 %}
+                <div class="empty-state">No cases captured yet for this category.</div>
+                {% else %}
+                <div class="row g-3">
+                    {% for offender in offender_list %}
+                    {% set modal_id = (category ~ '-' ~ offender.folder).replace(' ', '_').replace('/', '_') %}
+                    <div
+                        class="col-sm-6 col-lg-4 offender-item"
+                        data-card-category="{{ category }}"
+                        data-card-folder="{{ offender.folder }}"
+                        data-card-name="{{ (offender.name or '')|lower }}"
+                        data-card-plate="{{ (offender.number_plate or '')|lower }}"
+                        data-card-location="{{ (offender.location or '')|lower }}"
+                        data-card-fine-applied="{{ 'true' if offender.fine_applied else 'false' }}"
+                    >
+                        <article class="violation-card">
+                            <div class="card-image-wrap">
+                                {% if offender.images|length > 0 %}
+                                <img src="{{ url_for('static', filename=category + '/' + offender.folder + '/' + offender.images[0]) }}" alt="Violation image">
+                                {% else %}
+                                <div class="card-no-image">No image</div>
+                                {% endif %}
+                            </div>
+                            <div class="p-3 d-flex flex-column gap-2">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <strong data-card-name-text>{{ offender.name or "Unnamed Offender" }}</strong>
+                                    <span class="status-pill {% if offender.fine_applied %}status-applied{% else %}status-pending{% endif %}" data-card-status>
+                                        {% if offender.fine_applied %}Fine Applied{% else %}Pending Fine{% endif %}
+                                    </span>
+                                </div>
+                                <div class="small text-secondary">
+                                    <div><span class="text-muted">Plate:</span> <span data-card-plate-text>{{ offender.number_plate or "Not set" }}</span></div>
+                                    <div><span class="text-muted">Location:</span> <span data-card-location-text>{{ offender.location or "Unknown" }}</span></div>
+                                    <div><span class="text-muted">Captured:</span> {{ offender.session_time }}</div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center pt-1">
+                                    <div class="fw-semibold">INR <span data-card-fine>{{ offender.fine }}</span></div>
+                                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modal-{{ modal_id }}">
+                                        Review
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="modal fade" id="modal-{{ modal_id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h2 class="modal-title fs-5">{{ category_meta[category].label }} Case</h2>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            {% if offender.images|length > 0 %}
+                                                {% for image in offender.images %}
+                                                <img
+                                                    src="{{ url_for('static', filename=category + '/' + offender.folder + '/' + image) }}"
+                                                    alt="Offence image {{ loop.index }}"
+                                                    class="modal-image"
+                                                >
+                                                {% endfor %}
+                                            {% else %}
+                                            <div class="empty-state">No image available for this case.</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <form class="d-grid gap-2">
+                                                <label class="form-label mb-0" for="name-{{ modal_id }}">Name</label>
+                                                <input id="name-{{ modal_id }}" type="text" class="form-control editable-field" data-category="{{ category }}" data-folder="{{ offender.folder }}" data-field="name" value="{{ offender.name }}">
+
+                                                <label class="form-label mb-0" for="offence-{{ modal_id }}">Offence</label>
+                                                <input id="offence-{{ modal_id }}" type="text" class="form-control" value="{{ offender.offence }}" readonly>
+
+                                                <label class="form-label mb-0" for="plate-{{ modal_id }}">Number Plate</label>
+                                                <input id="plate-{{ modal_id }}" type="text" class="form-control editable-field" data-category="{{ category }}" data-folder="{{ offender.folder }}" data-field="number_plate" value="{{ offender.number_plate }}">
+
+                                                <label class="form-label mb-0" for="fine-{{ modal_id }}">Fine Amount</label>
+                                                <input id="fine-{{ modal_id }}" type="number" min="0" class="form-control editable-field" data-category="{{ category }}" data-folder="{{ offender.folder }}" data-field="fine" value="{{ offender.fine }}">
+
+                                                <label class="form-label mb-0" for="location-{{ modal_id }}">Location</label>
+                                                <input id="location-{{ modal_id }}" type="text" class="form-control editable-field" data-category="{{ category }}" data-folder="{{ offender.folder }}" data-field="location" value="{{ offender.location }}">
+
+                                                <div class="form-check form-switch mt-2">
+                                                    <input
+                                                        class="form-check-input editable-checkbox"
+                                                        type="checkbox"
+                                                        role="switch"
+                                                        id="applied-{{ modal_id }}"
+                                                        data-category="{{ category }}"
+                                                        data-folder="{{ offender.folder }}"
+                                                        data-field="fine_applied"
+                                                        {% if offender.fine_applied %}checked{% endif %}
+                                                    >
+                                                    <label class="form-check-label" for="applied-{{ modal_id }}">Fine Applied</label>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer justify-content-between">
+                                    <small class="text-secondary">Folder: {{ offender.folder }}</small>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"
+></script>
+<script>
+    const currencyFormatter = new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0
+    });
+
+    function normalize(value) {
+        return String(value || "").trim().toLowerCase();
+    }
+
+    function updateSummaryWidgets() {
+        const cards = [...document.querySelectorAll(".offender-item")];
+        const totalCases = cards.length;
+        const fineApplied = cards.filter((card) => card.dataset.cardFineApplied === "true").length;
+        const finePending = totalCases - fineApplied;
+        const totalFineAmount = cards.reduce((sum, card) => {
+            const fineNode = card.querySelector("[data-card-fine]");
+            const fine = Number.parseInt(fineNode ? fineNode.textContent : "0", 10);
+            return sum + (Number.isFinite(fine) ? fine : 0);
+        }, 0);
+
+        document.querySelector("[data-summary='total_cases']").textContent = totalCases;
+        document.querySelector("[data-summary='fine_applied']").textContent = fineApplied;
+        document.querySelector("[data-summary='fine_pending']").textContent = finePending;
+        document.querySelector("[data-summary='total_fine_amount']").textContent = currencyFormatter.format(totalFineAmount);
+
+        document.querySelectorAll("[data-category-total]").forEach((node) => {
+            const category = node.dataset.categoryTotal;
+            const categoryCards = cards.filter((card) => card.dataset.cardCategory === category);
+            const applied = categoryCards.filter((card) => card.dataset.cardFineApplied === "true").length;
+            node.textContent = String(categoryCards.length);
+            document.querySelector(`[data-category-applied='${category}']`).textContent = String(applied);
+            document.querySelector(`[data-category-pending='${category}']`).textContent = String(categoryCards.length - applied);
+        });
+    }
+
+    async function postUpdate(category, folder, field, value) {
+        const response = await fetch("/update_offender", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ category, folder, field, value })
+        });
+        const payload = await response.json();
+        if (!response.ok || payload.status !== "success") {
+            throw new Error(payload.message || "Update failed.");
+        }
+        return payload.record;
+    }
+
+    function setCardFineState(card, fineApplied) {
+        card.dataset.cardFineApplied = fineApplied ? "true" : "false";
+        const statusNode = card.querySelector("[data-card-status]");
+        if (!statusNode) return;
+
+        statusNode.textContent = fineApplied ? "Fine Applied" : "Pending Fine";
+        statusNode.classList.toggle("status-applied", fineApplied);
+        statusNode.classList.toggle("status-pending", !fineApplied);
+    }
+
+    async function handleEditableChange(event) {
+        const input = event.target;
+        const category = input.dataset.category;
+        const folder = input.dataset.folder;
+        const field = input.dataset.field;
+        const value = input.type === "checkbox" ? input.checked : input.value;
+
+        const previousDisabledState = input.disabled;
+        input.disabled = true;
+
+        try {
+            const record = await postUpdate(category, folder, field, value);
+            const selector = `.offender-item[data-card-category="${category}"][data-card-folder="${folder}"]`;
+            const card = document.querySelector(selector);
+            if (!card) {
+                updateSummaryWidgets();
+                return;
+            }
+
+            if (field === "name") {
+                card.dataset.cardName = normalize(record.name);
+                card.querySelector("[data-card-name-text]").textContent = record.name || "Unnamed Offender";
+            }
+            if (field === "number_plate") {
+                card.dataset.cardPlate = normalize(record.number_plate);
+                card.querySelector("[data-card-plate-text]").textContent = record.number_plate || "Not set";
+            }
+            if (field === "location") {
+                card.dataset.cardLocation = normalize(record.location);
+                card.querySelector("[data-card-location-text]").textContent = record.location || "Unknown";
+            }
+            if (field === "fine") {
+                card.querySelector("[data-card-fine]").textContent = String(record.fine || 0);
+            }
+            if (field === "fine_applied") {
+                setCardFineState(card, Boolean(record.fine_applied));
+            }
+            updateSummaryWidgets();
+            applyCategoryFilters(category);
+        } catch (error) {
+            window.alert(error.message);
+            if (input.type === "checkbox") {
+                input.checked = !input.checked;
+            }
+        } finally {
+            input.disabled = previousDisabledState;
+        }
+    }
+
+    function applyCategoryFilters(category) {
+        const searchNode = document.querySelector(`[data-search-category="${category}"]`);
+        const pendingNode = document.querySelector(`[data-pending-category="${category}"]`);
+        const searchTerm = normalize(searchNode ? searchNode.value : "");
+        const pendingOnly = Boolean(pendingNode && pendingNode.checked);
+
+        document
+            .querySelectorAll(`.offender-item[data-card-category="${category}"]`)
+            .forEach((card) => {
+                const haystack = [
+                    card.dataset.cardName,
+                    card.dataset.cardPlate,
+                    card.dataset.cardLocation,
+                    normalize(card.dataset.cardFolder)
+                ].join(" ");
+                const matchesSearch = searchTerm.length === 0 || haystack.includes(searchTerm);
+                const matchesPending = !pendingOnly || card.dataset.cardFineApplied === "false";
+                card.hidden = !(matchesSearch && matchesPending);
+            });
+    }
+
+    document.querySelectorAll(".editable-field").forEach((input) => {
+        input.addEventListener("change", handleEditableChange);
+    });
+
+    document.querySelectorAll(".editable-checkbox").forEach((input) => {
+        input.addEventListener("change", handleEditableChange);
+    });
+
+    document.querySelectorAll("[data-search-category]").forEach((input) => {
+        input.addEventListener("input", (event) => applyCategoryFilters(event.target.dataset.searchCategory));
+    });
+
+    document.querySelectorAll("[data-pending-category]").forEach((input) => {
+        input.addEventListener("change", (event) => applyCategoryFilters(event.target.dataset.pendingCategory));
+    });
+
+    updateSummaryWidgets();
+</script>
+</body>
+</html>
