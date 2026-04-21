@@ -84,6 +84,65 @@ Common options:
 .\.venv\Scripts\python.exe test.py
 ```
 
+## Automated Tests
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+## Render Deployment
+
+This repo includes a Render Blueprint file:
+
+- `render.yaml`
+
+Production app start command:
+
+- `gunicorn wsgi:app --workers 2 --threads 4 --timeout 120`
+
+Health check endpoint:
+
+- `/healthz`
+
+### Deploy from Render Dashboard
+
+1. In Render, create a new Blueprint or Web Service from this GitHub repo.
+2. Use:
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `gunicorn wsgi:app`
+3. Set health check path to `/healthz` (if not automatically picked up from `render.yaml`).
+
+### Deploy with Render CLI
+
+Install (Linux/macOS):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/render-oss/cli/refs/heads/main/bin/install.sh | sh
+```
+
+Login:
+
+```bash
+render login
+```
+
+Deploy:
+
+```bash
+render deploys create <RENDER_SERVICE_ID> --wait --output json --confirm
+```
+
+### GitHub Workflow for Render Deploy
+
+Workflow file:
+
+- `.github/workflows/render-deploy.yml`
+
+Set these repository secrets:
+
+- `RENDER_API_KEY`
+- `RENDER_SERVICE_ID`
+
 ## Docs Used For This Update
 
 - Ultralytics docs: https://docs.ultralytics.com
@@ -91,3 +150,6 @@ Common options:
 - Flask docs: https://flask.palletsprojects.com
 - Flask development server notes: https://flask.palletsprojects.com/en/stable/server
 - Bootstrap docs (dashboard UI update): https://getbootstrap.com/docs/5.3/getting-started/introduction/
+- Render Flask deployment docs: https://render.com/docs/deploy-flask
+- Render CLI docs: https://render.com/docs/cli
+- Render health checks docs: https://render.com/docs/health-checks

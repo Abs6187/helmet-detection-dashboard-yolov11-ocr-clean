@@ -152,6 +152,11 @@ def index():
     return render_template("index.html", offenders=offenders, summary=summary, category_meta=CATEGORY_META)
 
 
+@app.get("/healthz")
+def health_check():
+    return jsonify({"status": "ok"}), 200
+
+
 @app.route("/update_offender", methods=["POST"])
 def update_offender():
     payload = request.get_json(silent=True) or {}
