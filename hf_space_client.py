@@ -111,7 +111,10 @@ class _RemoteBackend:
     def _client_instance(self):
         if self._client is None:
             from gradio_client import Client  # type: ignore[import-untyped]
-            self._client = Client(src=SPACE_ID, hf_token=self._token)
+            try:
+                self._client = Client(src=SPACE_ID, hf_token=self._token)
+            except TypeError:
+                self._client = Client(src=SPACE_ID, token=self._token)
         return self._client
 
     def predict(
@@ -532,7 +535,10 @@ class SpeedEstimator:
         if self._client is None:
             from gradio_client import Client  # type: ignore[import-untyped]
             logger.info("SpeedEstimator: connecting to %s (may wake sleeping Space)…", SPEED_SPACE_ID)
-            self._client = Client(src=SPEED_SPACE_ID, hf_token=self._token)
+            try:
+                self._client = Client(src=SPEED_SPACE_ID, hf_token=self._token)
+            except TypeError:
+                self._client = Client(src=SPEED_SPACE_ID, token=self._token)
         return self._client
 
     @property
