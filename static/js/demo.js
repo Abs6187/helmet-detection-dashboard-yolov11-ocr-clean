@@ -118,8 +118,8 @@
 
             // Violation
             violationEl.innerHTML = data.has_violation
-                ? "<span style='color:#a73b00;font-weight:700;'>⚠ Violation detected</span>"
-                : "<span style='color:#007a5a;'>✓ No violation</span>";
+                ? "<span style='color:#a73b00;font-weight:700;'>Violation detected</span>"
+                : "<span style='color:#007a5a;'>No violation</span>";
 
             statsEl.textContent = data.stats || "—";
             ocrEl.textContent   = data.ocr_text || "—";
@@ -150,7 +150,7 @@
             };
 
         } catch (err) {
-            resultPlaceholder.innerHTML = `<div style='color:#a73b00;font-size:0.82rem;padding:16px'>❌ ${err.message}</div>`;
+            resultPlaceholder.innerHTML = `<div style='color:#a73b00;font-size:0.82rem;padding:16px'>Error: ${err.message}</div>`;
         }
     }
 
@@ -196,7 +196,7 @@
     btn.addEventListener("click", function () {
         if (btn.disabled) return;
         btn.disabled    = true;
-        btn.textContent = "⏳ Analysing…";
+        btn.textContent = "Analysing…";
 
         idleEl.style.display    = "none";
         loadingEl.style.display = "";
@@ -221,7 +221,7 @@
             document.getElementById("sstat-out").textContent   = DEMO_STATS.out;
 
             btn.disabled    = false;
-            btn.textContent = "↺ Run Again";
+            btn.textContent = "Run Again";
         }, 6600);
     });
 })();
