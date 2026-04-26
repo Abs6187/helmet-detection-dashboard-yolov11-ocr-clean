@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block title %}Traffic Violation Dashboard{% endblock %}
+{% block description %}Review captured traffic offences, update case details, and track fine processing status.{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════════════════════
+     HEADER — title + metric cards
+══════════════════════════════════════════════════════════ -->
+<section class="header-band">
+    <h1 class="header-title">Traffic Violation Dashboard</h1>
+    <p class="header-subtitle">Review captured offences, update case details, and track fine processing status.</p>
+
+    <div class="metric-grid">
+        <article class="metric-card">
+            <div class="metric-label">Total Cases</div>
+            <div class="metric-value" data-summary="total_cases">{{ summary.total_cases }}</div>
+        </article>
+        <article class="metric-card">
+            <div class="metric-label">Fine Applied</div>
+            <div class="metric-value" data-summary="fine_applied">{{ summary.fine_applied }}</div>
+        </article>
+        <article class="metric-card">
+            <div class="metric-label">Fine Pending</div>
+            <div class="metric-value" data-summary="fine_pending">{{ summary.fine_pending }}</div>
+        </article>
+        <article class="metric-card">
+            <div class="metric-label">Total Fine Amount</div>
+            <div class="metric-value" data-summary="total_fine_amount" data-format="currency">{{ summary.total_fine_amount }}</div>
+        </article>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     OFFENDER TABS
+══════════════════════════════════════════════════════════ -->
+<section class="tabs-wrap">
+    <ul class="nav nav-tabs" id="offenderTabs" role="tablist">
+        {% for category, meta in category_meta.items() %}
+        <li class="nav-item" role="presentation">
+            <button
+                class="nav-link {% if loop.first %}active{% endif %}"
+                id="{{ category }}-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#tab-{{ category }}"
+                type="button"
+                role="tab"
+                aria-controls="tab-{{ category }}"
+                aria-selected="{{ 'true' if loop.first else 'false' }}"
+            >{{ meta.label }}</button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content pt-2">
+        {% for category, offender_list in offenders.items() %}
+        <div
+            class="tab-pane fade {% if loop.first %}show active{% endif %}"
+            id="tab-{{ category }}"
+            role="tabpanel"
+            aria-labelledby="{{ category }}-tab"
+        >
+            <!-- Search + filter bar -->
+            <div class="tab-tools">
+                <input
+                    type="search"
+                    class="form-control search-input"
+                    id="search-{{ category }}"
+                    data-search-category="{{ category }}"
+                    placeholder="Search by name, plate, location, or folder"
+                >
+                <div class="form-check form-switch">
+                    <input
+                        class="form-check-input pending-toggle"
+                        type="checkbox"
+                        id="pending-{{ category }}"
+                        data-pending-category="{{ category }}"
+                    >
+                    <label class="form-check-label" for="pending-{{ category }}">Only Pending</label>
+                </div>
+            </div>
+
+            <!-- Category summary row -->
+            <div class="category-meta">
+                <span class="category-dot">
+                    <span class="dot"></span>
+                    <span>Total: <strong data-category-total="{{ category }}">{{ summary.categories[category].total_cases }}</strong></span>
+                </span>
+                <span>Fine Applied: <strong data-category-applied="{{ category }}">{{ summary.categories[category].fine_applied }}</strong></span>
+                <span>Fine Pending: <strong data-category-pending="{{ category }}">{{ summary.categories[category].fine_pending }}</strong></span>
+            </div>
+
+            {% if offender_list|length == 0 %}
+            <div class="empty-state">No cases captured yet for this category.</div>
+            {% else %}
+            <div class="row g-3">
+                {% for offender in offender_list %}
+                {% set mid = (category ~ '-' ~ offender.folder).replace(' ', '_').replace('/', '_') %}
+
+                <!-- Offender card -->
+                <div
+                    class="col-sm-6 col-lg-4 offender-item"
+                    data-card-category="{{ category }}"
+                    data-card-folder="{{ offender.folder }}"
+                    data-card-name="{{ (offender.name or '')|lower }}"
+                    data-card-plate="{{ (offender.number_plate or '')|lower }}"
+                    data-card-location="{{ (offender.location or '')|lower }}"
+                    data-card-fine-applied="{{ 'true' if offender.fine_applied else 'false' }}"
+                >
+                    <article class="violation-card">
+                        <div class="card-image-wrap">
+                            {% if offender.images|length > 0 %}
+                            <img
+                                src="{{ url_for('static', filename=category + '/' + offender.folder + '/' + offender.images[0]) }}"
+                                alt="Violation image"
+                                loading="lazy"
+                            >
+                            {% else %}
+                            <div class="card-no-image">No image</div>
+                            {% endif %}
+                        </div>
+                        <div class="p-3 d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <strong data-card-name-text>{{ offender.name or "Unnamed Offender" }}</strong>
+                                <span
+                                    class="status-pill {% if offender.fine_applied %}status-applied{% else %}status-pending{% endif %}"
+                                    data-card-status
+                                >
+                                    {% if offender.fine_applied %}Fine Applied{% else %}Pending Fine{% endif %}
+                                </span>
+                            </div>
+                            <div class="small text-secondary">
+                                <div><span class="text-muted">Plate:</span> <span data-card-plate-text>{{ offender.number_plate or "Not set" }}</span></div>
+                                <div><span class="text-muted">Location:</span> <span data-card-location-text>{{ offender.location or "Unknown" }}</span></div>
+                                <div><span class="text-muted">Captured:</span> {{ offender.session_time }}</div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pt-1">
+                                <div class="fw-semibold">INR <span data-card-fine>{{ offender.fine }}</span></div>
+                                <button
+                                    class="btn btn-sm btn-outline-secondary"
+                                    id="review-btn-{{ mid }}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modal-{{ mid }}"
+                                >Review</button>
+                            </div>
+                        </div>
+                    </article>
+                </div><!-- /offender-item -->
+
+                <!-- Review modal -->
+                <div class="modal fade" id="modal-{{ mid }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title fs-5">{{ category_meta[category].label }} Case</h2>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        {% if offender.images|length > 0 %}
+                                            {% for image in offender.images %}
+                                            <img
+                                                src="{{ url_for('static', filename=category + '/' + offender.folder + '/' + image) }}"
+                                                alt="Offence image {{ loop.index }}"
+                                                class="modal-image"
+                                                loading="lazy"
+                                            >
+                                            {% endfor %}
+                                        {% else %}
+                                        <div class="empty-state">No image available for this case.</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <form class="d-grid gap-2">
+                                            <label class="form-label mb-0" for="name-{{ mid }}">Name</label>
+                                            <input
+                                                id="name-{{ mid }}" type="text"
+                                                class="form-control editable-field"
+                                                data-category="{{ category }}" data-folder="{{ offender.folder }}" data-field="name"
+                                                value="{{ offender.name }}"
+                                            >
+
+                                            <label class="form-label mb-0" for="offence-{{ mid }}">Offence</label>
+                                            <input id="offence-{{ mid }}" type="text" class="form-control" value="{{ offender.offence }}" readonly>
+
+                                            <label class="form-label mb-0" for="plate-{{ mid }}">Number Plate</label>
+                                            <input
+                                                id="plate-{{ mid }}" type="text"
+                                                class="form-control editable-field"
+                                                data-category="{{ category }}" data-folder="{{ offender.folder }}" data-field="number_plate"
+                                                value="{{ offender.number_plate }}"
+                                            >
+
+                                            <label class="form-label mb-0" for="fine-{{ mid }}">Fine Amount</label>
+                                            <input
+                                                id="fine-{{ mid }}" type="number" min="0"
+                                                class="form-control editable-field"
+                                                data-category="{{ category }}" data-folder="{{ offender.folder }}" data-field="fine"
+                                                value="{{ offender.fine }}"
+                                            >
+
+                                            <label class="form-label mb-0" for="location-{{ mid }}">Location</label>
+                                            <input
+                                                id="location-{{ mid }}" type="text"
+                                                class="form-control editable-field"
+                                                data-category="{{ category }}" data-folder="{{ offender.folder }}" data-field="location"
+                                                value="{{ offender.location }}"
+                                            >
+
+                                            <div class="form-check form-switch mt-2">
+                                                <input
+                                                    class="form-check-input editable-checkbox"
+                                                    type="checkbox" role="switch"
+                                                    id="applied-{{ mid }}"
+                                                    data-category="{{ category }}" data-folder="{{ offender.folder }}" data-field="fine_applied"
+                                                    {% if offender.fine_applied %}checked{% endif %}
+                                                >
+                                                <label class="form-check-label" for="applied-{{ mid }}">Fine Applied</label>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <small class="text-secondary">Folder: {{ offender.folder }}</small>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- /modal -->
+
+                {% endfor %}
+            </div><!-- /row -->
+            {% endif %}
+        </div><!-- /tab-pane -->
+        {% endfor %}
+    </div><!-- /tab-content -->
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     DEMO LAB
+══════════════════════════════════════════════════════════ -->
+<section class="tabs-wrap mt-3" id="demo-lab">
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <h2 class="m-0" style="font-size:1.15rem;font-weight:700;">🧪 Live Demo Lab</h2>
+        <span class="badge rounded-pill" style="background:var(--accent-soft);color:var(--accent);font-size:0.75rem;">
+            Try the AI models on sample data
+        </span>
+    </div>
+
+    <!-- ── Helmet Detection Demo ──────────────────────────────────── -->
+    <div class="demo-card" id="helmet-demo-card">
+        <div class="demo-card-header">
+            <span class="demo-icon">🪖</span>
+            <div>
+                <div class="demo-card-title">Helmet &amp; Licence Plate Detection</div>
+                <div class="demo-card-sub">Pick a sample image — the AI model detects violations and reads number plates via OCR.</div>
+            </div>
+            <span class="demo-badge">HF Space + Local fallback</span>
+        </div>
+
+        <div class="demo-samples-row" id="helmet-sample-row">
+            <div class="demo-placeholder-text">Loading samples…</div>
+        </div>
+
+        <div id="helmet-demo-result" class="demo-result-area" style="display:none;">
+            <div class="demo-result-split">
+                <div class="demo-result-img-wrap">
+                    <img id="helmet-result-img" src="" alt="Detection result" class="demo-result-img" style="display:none;">
+                    <div id="helmet-result-img-placeholder" class="demo-result-img-placeholder">
+                        <div class="demo-spinner"></div>
+                        <div>Running detection…</div>
+                    </div>
+                </div>
+                <div class="demo-result-info">
+                    <div class="demo-result-row"><span class="demo-result-label">Mode</span><span id="demo-mode" class="demo-badge-sm">—</span></div>
+                    <div class="demo-result-row"><span class="demo-result-label">Violation</span><span id="demo-violation">—</span></div>
+                    <div class="demo-result-row"><span class="demo-result-label">Stats</span><span id="demo-stats" style="font-size:0.82rem;">—</span></div>
+                    <div class="demo-result-row"><span class="demo-result-label">OCR / Plate</span><code id="demo-ocr" style="font-size:0.85rem;">—</code></div>
+                    <div style="margin-top:8px;">
+                        <div class="demo-result-label mb-1">Detections</div>
+                        <table class="demo-table">
+                            <thead><tr><th>Label</th><th>Conf.</th></tr></thead>
+                            <tbody id="demo-det-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- /helmet-demo-card -->
+
+    <!-- ── Speed Estimation Demo ──────────────────────────────────── -->
+    <div class="demo-card mt-3" id="speed-demo-card">
+        <div class="demo-card-header">
+            <span class="demo-icon">🚗</span>
+            <div>
+                <div class="demo-card-title">
+                    Vehicle Speed Estimation &amp; Counting
+                    <span class="demo-optional-badge">Advanced · Optional</span>
+                </div>
+                <div class="demo-card-sub">Real-time vehicle detection, multi-object tracking, and speed estimation via perspective transformation.</div>
+            </div>
+            <span class="demo-badge" style="background:#e8f0fe;color:#1a56db;">HF Space (YOLO + ByteTrack)</span>
+        </div>
+
+        <div class="speed-demo-layout">
+            <!-- Input column -->
+            <div class="speed-col">
+                <div class="speed-col-label">📤 Input Video</div>
+                <div class="speed-input-box">
+                    <div class="speed-file-icon">🎬</div>
+                    <div class="speed-file-name">vehicles.mp4</div>
+                    <div class="speed-file-meta">Sample traffic footage · HF Space dataset</div>
+                    <a
+                        href="https://huggingface.co/spaces/Abs6187/Vehicle_Speed_Estimation_and_Counting/blob/main/data/vehicles.mp4"
+                        target="_blank" rel="noopener"
+                        class="btn btn-sm mt-2"
+                        style="background:var(--accent-soft);color:var(--accent);border:1px solid #b5d9cb;"
+                    >View on Hugging Face ↗</a>
+                    <button
+                        id="speed-demo-btn"
+                        class="btn btn-sm mt-2"
+                        style="background:var(--accent);color:#fff;border:none;"
+                    >▶ Run Demo Analysis</button>
+                </div>
+            </div>
+
+            <!-- Output column -->
+            <div class="speed-col">
+                <div class="speed-col-label">📥 Annotated Output</div>
+                <div id="speed-output-area">
+
+                    <div id="speed-idle" class="speed-idle-state">
+                        <div style="font-size:2rem;">🎯</div>
+                        <div>Click <strong>Run Demo Analysis</strong> to see results</div>
+                    </div>
+
+                    <div id="speed-loading" class="speed-loading-overlay" style="display:none;">
+                        <div class="speed-loading-inner">
+                            <div class="speed-loading-spinner"></div>
+                            <div class="speed-loading-title">Analysing Traffic Video</div>
+                            <div id="speed-loading-steps">
+                                <div class="speed-step speed-step-active" id="sstep-1">⏳ Connecting to HF Space…</div>
+                                <div class="speed-step" id="sstep-2">🔍 Running YOLO detection…</div>
+                                <div class="speed-step" id="sstep-3">📐 Estimating speeds via perspective transform…</div>
+                                <div class="speed-step" id="sstep-4">📊 Compiling statistics…</div>
+                                <div class="speed-step" id="sstep-5">✅ Rendering annotated video…</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="speed-result" style="display:none;">
+                        <video
+                            id="speed-result-video"
+                            src="https://huggingface.co/spaces/Abs6187/Vehicle_Speed_Estimation_and_Counting/resolve/main/data/vehicles_output.mp4"
+                            controls autoplay muted loop
+                            style="width:100%;border-radius:8px;border:1px solid var(--border);"
+                        ></video>
+                        <div class="speed-stats-grid">
+                            <div class="speed-stat"><div class="speed-stat-val" id="sstat-total">—</div><div class="speed-stat-lbl">Vehicles</div></div>
+                            <div class="speed-stat"><div class="speed-stat-val" id="sstat-avg">—</div><div class="speed-stat-lbl">Avg km/h</div></div>
+                            <div class="speed-stat"><div class="speed-stat-val" id="sstat-max">—</div><div class="speed-stat-lbl">Max km/h</div></div>
+                            <div class="speed-stat"><div class="speed-stat-val" id="sstat-in">—</div><div class="speed-stat-lbl">In</div></div>
+                            <div class="speed-stat"><div class="speed-stat-val" id="sstat-out">—</div><div class="speed-stat-lbl">Out</div></div>
+                        </div>
+                        <div class="demo-result-row mt-2">
+                            <span class="demo-result-label" style="font-size:0.78rem;">Note</span>
+                            <span style="font-size:0.78rem;color:var(--muted);">Pre-rendered output — live processing runs on Free-tier HF Space (may take 1–3 min warm-up).</span>
+                        </div>
+                    </div>
+
+                </div><!-- /speed-output-area -->
+            </div><!-- /speed-col -->
+        </div><!-- /speed-demo-layout -->
+    </div><!-- /speed-demo-card -->
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/demo.js') }}"></script>
+{% endblock %}

@@ -8,3 +8,9 @@ static/triples/
 
 # Full downloaded raw dataset (keep local, do not push)
 static/Riding.v1i.yolov8/
+
+# Local project context file (contains sensitive info, keep local)
+context.md
+huggingfacehub.md
+integrate.md
+

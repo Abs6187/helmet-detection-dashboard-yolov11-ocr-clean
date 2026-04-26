@@ -1,2 +1,4 @@
-from offender import app
+"""wsgi.py — Production WSGI entrypoint (Gunicorn / Render)."""
+from app import create_app
 
+app = create_app()

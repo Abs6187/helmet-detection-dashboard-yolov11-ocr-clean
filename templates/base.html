@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Traffic Violation Dashboard{% endblock %}</title>
+    <meta name="description" content="{% block description %}Review captured traffic offences, update case details, and track fine processing status.{% endblock %}">
+
+    <!-- Bootstrap (local vendor copy) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/css/bootstrap.min.css') }}">
+
+    <!-- App design tokens + layout -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+<main class="dashboard-shell">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Bootstrap JS (local vendor copy) -->
+<script src="{{ url_for('static', filename='vendor/js/bootstrap.bundle.min.js') }}"></script>
+
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

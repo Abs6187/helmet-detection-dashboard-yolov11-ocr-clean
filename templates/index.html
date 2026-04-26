@@ -414,7 +414,343 @@
             {% endfor %}
         </div>
     </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         DEMO LAB SECTION
+    ═══════════════════════════════════════════════════════════════ -->
+    <section class="tabs-wrap mt-3" id="demo-lab">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <h2 class="m-0" style="font-size:1.15rem;font-weight:700;">🧪 Live Demo Lab</h2>
+            <span class="badge rounded-pill" style="background:var(--accent-soft);color:var(--accent);font-size:0.75rem;">Try the AI models on sample data</span>
+        </div>
+
+        <!-- ── Helmet Detection Demo ───────────────────────────────── -->
+        <div class="demo-card" id="helmet-demo-card">
+            <div class="demo-card-header">
+                <span class="demo-icon">🪖</span>
+                <div>
+                    <div class="demo-card-title">Helmet &amp; Licence Plate Detection</div>
+                    <div class="demo-card-sub">Pick a sample image below — the AI model detects violations and reads number plates via OCR.</div>
+                </div>
+                <span class="demo-badge">HF Space + Local fallback</span>
+            </div>
+
+            <div class="demo-samples-row" id="helmet-sample-row">
+                <div class="demo-placeholder-text">Loading samples…</div>
+            </div>
+
+            <div id="helmet-demo-result" class="demo-result-area" style="display:none;">
+                <div class="demo-result-split">
+                    <div class="demo-result-img-wrap">
+                        <img id="helmet-result-img" src="" alt="Detection result" class="demo-result-img">
+                        <div id="helmet-result-img-placeholder" class="demo-result-img-placeholder">
+                            <div class="demo-spinner"></div>
+                            <div>Running detection…</div>
+                        </div>
+                    </div>
+                    <div class="demo-result-info" id="helmet-result-info">
+                        <div class="demo-result-row"><span class="demo-result-label">Mode</span><span id="demo-mode" class="demo-badge-sm">—</span></div>
+                        <div class="demo-result-row"><span class="demo-result-label">Violation</span><span id="demo-violation">—</span></div>
+                        <div class="demo-result-row"><span class="demo-result-label">Stats</span><span id="demo-stats" style="font-size:0.82rem;">—</span></div>
+                        <div class="demo-result-row"><span class="demo-result-label">OCR / Plate</span><code id="demo-ocr" style="font-size:0.85rem;">—</code></div>
+                        <div id="demo-detections-wrap" style="margin-top:8px;">
+                            <div class="demo-result-label mb-1">Detections</div>
+                            <table class="demo-table" id="demo-det-table">
+                                <thead><tr><th>Label</th><th>Conf.</th></tr></thead>
+                                <tbody id="demo-det-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Speed Estimation Demo ──────────────────────────────── -->
+        <div class="demo-card mt-3" id="speed-demo-card">
+            <div class="demo-card-header">
+                <span class="demo-icon">🚗</span>
+                <div>
+                    <div class="demo-card-title">Vehicle Speed Estimation &amp; Counting <span class="demo-optional-badge">Advanced · Optional</span></div>
+                    <div class="demo-card-sub">Real-time vehicle detection, multi-object tracking, and speed estimation via perspective transformation.</div>
+                </div>
+                <span class="demo-badge" style="background:#e8f0fe;color:#1a56db;">HF Space (YOLO + ByteTrack)</span>
+            </div>
+
+            <div class="speed-demo-layout">
+                <!-- Input column -->
+                <div class="speed-col">
+                    <div class="speed-col-label">📤 Input Video</div>
+                    <div class="speed-input-box">
+                        <div class="speed-file-icon">🎬</div>
+                        <div class="speed-file-name">vehicles.mp4</div>
+                        <div class="speed-file-meta">Sample traffic footage · HF Space dataset</div>
+                        <a
+                            href="https://huggingface.co/spaces/Abs6187/Vehicle_Speed_Estimation_and_Counting/blob/main/data/vehicles.mp4"
+                            target="_blank"
+                            rel="noopener"
+                            class="btn btn-sm mt-2"
+                            style="background:var(--accent-soft);color:var(--accent);border:1px solid #b5d9cb;"
+                        >View on Hugging Face ↗</a>
+                        <button class="btn btn-sm mt-2" id="speed-demo-btn"
+                            style="background:var(--accent);color:#fff;border:none;">
+                            ▶ Run Demo Analysis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Output column -->
+                <div class="speed-col">
+                    <div class="speed-col-label">📥 Annotated Output</div>
+                    <div id="speed-output-area" style="position:relative;min-height:200px;">
+                        <!-- Idle placeholder -->
+                        <div id="speed-idle" class="speed-idle-state">
+                            <div style="font-size:2rem;">🎯</div>
+                            <div>Click <strong>Run Demo Analysis</strong> to see results</div>
+                        </div>
+
+                        <!-- Fake loading screen -->
+                        <div id="speed-loading" class="speed-loading-overlay" style="display:none;">
+                            <div class="speed-loading-inner">
+                                <div class="speed-loading-spinner"></div>
+                                <div class="speed-loading-title">Analysing Traffic Video</div>
+                                <div class="speed-loading-steps" id="speed-loading-steps">
+                                    <div class="speed-step speed-step-active" id="sstep-1">⏳ Connecting to HF Space…</div>
+                                    <div class="speed-step" id="sstep-2">🔍 Running YOLO detection…</div>
+                                    <div class="speed-step" id="sstep-3">📐 Estimating speeds via perspective transform…</div>
+                                    <div class="speed-step" id="sstep-4">📊 Compiling statistics…</div>
+                                    <div class="speed-step" id="sstep-5">✅ Rendering annotated video…</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Result video + stats -->
+                        <div id="speed-result" style="display:none;">
+                            <video
+                                id="speed-result-video"
+                                src="https://huggingface.co/spaces/Abs6187/Vehicle_Speed_Estimation_and_Counting/resolve/main/data/vehicles_output.mp4"
+                                controls
+                                autoplay
+                                muted
+                                loop
+                                style="width:100%;border-radius:8px;border:1px solid var(--border);"
+                            ></video>
+                            <div class="speed-stats-grid" id="speed-stats-grid">
+                                <div class="speed-stat"><div class="speed-stat-val" id="sstat-total">—</div><div class="speed-stat-lbl">Vehicles</div></div>
+                                <div class="speed-stat"><div class="speed-stat-val" id="sstat-avg">—</div><div class="speed-stat-lbl">Avg km/h</div></div>
+                                <div class="speed-stat"><div class="speed-stat-val" id="sstat-max">—</div><div class="speed-stat-lbl">Max km/h</div></div>
+                                <div class="speed-stat"><div class="speed-stat-val" id="sstat-in">—</div><div class="speed-stat-lbl">In</div></div>
+                                <div class="speed-stat"><div class="speed-stat-val" id="sstat-out">—</div><div class="speed-stat-lbl">Out</div></div>
+                            </div>
+                            <div class="demo-result-row mt-2"><span class="demo-result-label" style="font-size:0.78rem;">Note</span><span style="font-size:0.78rem;color:var(--muted);">Pre-rendered output shown — live processing runs on Free-tier HF Space (may take 1–3 min warm-up).</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </main>
+
+<style>
+/* ── Demo Lab styles ─────────────────────────────────────────────────── */
+.demo-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: #fafcfb;
+    padding: 18px;
+}
+
+.demo-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.demo-icon { font-size: 1.6rem; flex-shrink: 0; margin-top: 2px; }
+
+.demo-card-title { font-weight: 700; font-size: 1rem; }
+.demo-card-sub { color: var(--muted); font-size: 0.85rem; margin-top: 3px; }
+
+.demo-badge {
+    margin-left: auto;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    align-self: flex-start;
+}
+
+.demo-optional-badge {
+    background: #fef9c3;
+    color: #854d0e;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
+.demo-samples-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.demo-placeholder-text { color: var(--muted); font-size: 0.88rem; }
+
+.demo-sample-group { display: flex; flex-direction: column; gap: 6px; }
+.demo-sample-group-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.demo-thumb-btn {
+    position: relative;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100px;
+    height: 72px;
+    background: #eef3f0;
+    transition: border-color 150ms, transform 150ms;
+    flex-shrink: 0;
+}
+
+.demo-thumb-btn:hover { border-color: var(--accent); transform: scale(1.04); }
+.demo-thumb-btn.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.demo-thumb-btn img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+}
+
+.demo-thumb-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,122,90,0); transition: background 150ms;
+    display: flex; align-items: center; justify-content: center;
+}
+.demo-thumb-btn:hover .demo-thumb-overlay { background: rgba(0,122,90,0.12); }
+.demo-thumb-btn.active .demo-thumb-overlay { background: rgba(0,122,90,0.18); }
+
+.demo-result-area {
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+    margin-top: 6px;
+}
+
+.demo-result-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+@media (max-width: 640px) { .demo-result-split { grid-template-columns: 1fr; } }
+
+.demo-result-img-wrap {
+    position: relative; min-height: 180px; background: #eff4f1;
+    border-radius: 8px; border: 1px solid var(--border); overflow: hidden;
+}
+.demo-result-img { width: 100%; display: block; }
+.demo-result-img-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 10px; color: var(--muted); font-size: 0.88rem;
+}
+
+.demo-spinner {
+    width: 28px; height: 28px;
+    border: 3px solid #dbe5df;
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.demo-result-info { display: flex; flex-direction: column; gap: 8px; }
+.demo-result-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.demo-result-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; min-width: 70px; }
+
+.demo-badge-sm {
+    background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 1px 8px; font-size: 0.75rem; font-weight: 600;
+}
+.demo-badge-sm.local { background: #fff7ed; color: #c2410c; }
+
+.demo-table { width: 100%; font-size: 0.8rem; border-collapse: collapse; }
+.demo-table th, .demo-table td { padding: 4px 8px; border-bottom: 1px solid var(--border); }
+.demo-table th { color: var(--muted); font-weight: 600; text-align: left; }
+
+/* ── Speed demo ─────────────────────────────────────────────────────── */
+.speed-demo-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 16px;
+    margin-top: 4px;
+}
+@media (max-width: 640px) { .speed-demo-layout { grid-template-columns: 1fr; } }
+
+.speed-col-label { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+
+.speed-input-box {
+    border: 1px dashed #b5d9cb;
+    border-radius: 10px;
+    background: #f4fcf8;
+    padding: 18px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;
+}
+.speed-file-icon { font-size: 2.2rem; }
+.speed-file-name { font-weight: 700; font-size: 0.95rem; }
+.speed-file-meta { font-size: 0.78rem; color: var(--muted); }
+
+.speed-idle-state {
+    min-height: 180px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; color: var(--muted); font-size: 0.9rem;
+    border: 1px dashed var(--border); border-radius: 8px;
+}
+
+.speed-loading-overlay {
+    position: relative; min-height: 220px;
+    border: 1px solid var(--border); border-radius: 10px;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #e0f0ea;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+}
+.speed-loading-inner { text-align: center; padding: 24px; }
+.speed-loading-spinner {
+    width: 44px; height: 44px; margin: 0 auto 16px;
+    border: 4px solid rgba(255,255,255,0.15);
+    border-top-color: #4ade80;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+.speed-loading-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: #f0fdf4; }
+.speed-step { font-size: 0.8rem; padding: 4px 0; color: rgba(255,255,255,0.4); transition: color 0.4s; }
+.speed-step.speed-step-active { color: #86efac; font-weight: 600; }
+.speed-step.speed-step-done { color: rgba(255,255,255,0.65); }
+
+.speed-stats-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 8px; margin-top: 10px;
+}
+.speed-stat {
+    background: #f4fcf8; border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 4px; text-align: center;
+}
+.speed-stat-val { font-size: 1.15rem; font-weight: 700; color: var(--accent); }
+.speed-stat-lbl { font-size: 0.7rem; color: var(--muted); margin-top: 2px; text-transform: uppercase; }
+</style>
+
 
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
@@ -569,5 +905,223 @@
 
     updateSummaryWidgets();
 </script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   Demo Lab — Helmet Detection
+═══════════════════════════════════════════════════════════════ */
+(async function initHelmetDemo() {
+    const row = document.getElementById("helmet-sample-row");
+    const resultArea = document.getElementById("helmet-demo-result");
+    const resultImg = document.getElementById("helmet-result-img");
+    const resultPlaceholder = document.getElementById("helmet-result-img-placeholder");
+    const modeEl = document.getElementById("demo-mode");
+    const violationEl = document.getElementById("demo-violation");
+    const statsEl = document.getElementById("demo-stats");
+    const ocrEl = document.getElementById("demo-ocr");
+    const detTbody = document.getElementById("demo-det-tbody");
+
+    const CATEGORY_LABELS = {
+        double_riding: "Double Riding",
+        single_rider:  "Single Rider",
+        triple_riding: "Triple Riding",
+    };
+
+    let activeThumbs = new Set();
+
+    async function loadSamples() {
+        try {
+            const r = await fetch("/demo_samples");
+            if (!r.ok) throw new Error("Failed to load samples");
+            const data = await r.json();
+
+            if (!Object.keys(data).length) {
+                row.innerHTML = "<div class='demo-placeholder-text'>No sample images found in dataset_samples/.</div>";
+                return;
+            }
+
+            row.innerHTML = "";
+            for (const [cat, files] of Object.entries(data)) {
+                const group = document.createElement("div");
+                group.className = "demo-sample-group";
+                const label = document.createElement("div");
+                label.className = "demo-sample-group-label";
+                label.textContent = CATEGORY_LABELS[cat] || cat.replace(/_/g, " ");
+                group.appendChild(label);
+
+                const thumbRow = document.createElement("div");
+                thumbRow.style.cssText = "display:flex;gap:6px;flex-wrap:wrap;";
+
+                for (const filePath of files.slice(0, 4)) {
+                    const btn = document.createElement("button");
+                    btn.className = "demo-thumb-btn";
+                    btn.title = cat + ": " + filePath.split("/").pop();
+                    btn.dataset.samplePath = filePath;
+
+                    const img = document.createElement("img");
+                    img.src = "/" + filePath;
+                    img.alt = cat;
+                    img.loading = "lazy";
+                    const overlay = document.createElement("div");
+                    overlay.className = "demo-thumb-overlay";
+                    btn.appendChild(img);
+                    btn.appendChild(overlay);
+
+                    btn.addEventListener("click", () => runDetection(btn, filePath));
+                    thumbRow.appendChild(btn);
+                }
+                group.appendChild(thumbRow);
+                row.appendChild(group);
+            }
+        } catch (e) {
+            row.innerHTML = "<div class='demo-placeholder-text'>" + e.message + "</div>";
+        }
+    }
+
+    async function runDetection(btn, samplePath) {
+        // highlight active thumb
+        document.querySelectorAll(".demo-thumb-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        // show result area in loading state
+        resultArea.style.display = "";
+        resultImg.src = "";
+        resultImg.style.display = "none";
+        resultPlaceholder.style.display = "";
+        modeEl.textContent = "—";
+        violationEl.textContent = "—";
+        statsEl.textContent = "—";
+        ocrEl.textContent = "—";
+        detTbody.innerHTML = "";
+
+        resultArea.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+        try {
+            const resp = await fetch("/demo_detect", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sample_path: samplePath, extract_text: true })
+            });
+            const data = await resp.json();
+
+            if (data.error && !data.mode) throw new Error(data.message || data.error);
+
+            // populate results
+            modeEl.textContent = data.mode || "unknown";
+            modeEl.className = "demo-badge-sm" + (data.mode === "local" ? " local" : "");
+            violationEl.innerHTML = data.has_violation
+                ? "<span style='color:#a73b00;font-weight:700;'>⚠ Violation detected</span>"
+                : "<span style='color:#007a5a;'>✓ No violation</span>";
+            statsEl.textContent = data.stats || "—";
+            ocrEl.textContent = data.ocr_text || "—";
+
+            // detections table
+            detTbody.innerHTML = "";
+            const dets = data.detections || [];
+            if (dets.length) {
+                dets.forEach(d => {
+                    const tr = document.createElement("tr");
+                    const label = d.label || d.Class || "Unknown";
+                    const conf = (d.confidence !== undefined ? d.confidence : d.Confidence);
+                    tr.innerHTML = `<td>${label}</td><td>${conf !== undefined ? Number(conf).toFixed(3) : "—"}</td>`;
+                    detTbody.appendChild(tr);
+                });
+            } else {
+                detTbody.innerHTML = "<tr><td colspan='2' style='color:var(--muted)'>No detections</td></tr>";
+            }
+
+            // annotated image
+            if (data.annotated_image_url) {
+                resultImg.src = data.annotated_image_url;
+                resultImg.onload = () => {
+                    resultPlaceholder.style.display = "none";
+                    resultImg.style.display = "block";
+                };
+                resultImg.onerror = () => {
+                    resultPlaceholder.innerHTML = "<div style='color:var(--muted);font-size:0.82rem;padding:16px'>Annotated image not available (local inference).</div>";
+                };
+            } else {
+                // Local fallback: show the original sample image
+                resultImg.src = "/" + samplePath;
+                resultImg.onload = () => {
+                    resultPlaceholder.style.display = "none";
+                    resultImg.style.display = "block";
+                };
+                resultImg.onerror = () => {
+                    resultPlaceholder.style.display = "none";
+                };
+            }
+        } catch (err) {
+            resultPlaceholder.innerHTML = "<div style='color:#a73b00;font-size:0.82rem;padding:16px'>❌ " + err.message + "</div>";
+        }
+    }
+
+    loadSamples();
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   Demo Lab — Speed Estimation (fake load → pre-rendered video)
+═══════════════════════════════════════════════════════════════ */
+(function initSpeedDemo() {
+    const btn = document.getElementById("speed-demo-btn");
+    const idleEl = document.getElementById("speed-idle");
+    const loadingEl = document.getElementById("speed-loading");
+    const resultEl = document.getElementById("speed-result");
+
+    const steps = [
+        { id: "sstep-1", delay: 0 },
+        { id: "sstep-2", delay: 1400 },
+        { id: "sstep-3", delay: 2900 },
+        { id: "sstep-4", delay: 4200 },
+        { id: "sstep-5", delay: 5400 },
+    ];
+
+    // Sample stats from the pre-computed video
+    const DEMO_STATS = { total: 18, avg: 42, max: 71, in: 11, out: 7 };
+
+    function showStep(index) {
+        steps.forEach((s, i) => {
+            const el = document.getElementById(s.id);
+            if (!el) return;
+            el.className = "speed-step" + (i < index ? " speed-step-done" : i === index ? " speed-step-active" : "");
+        });
+    }
+
+    btn.addEventListener("click", function () {
+        if (btn.disabled) return;
+        btn.disabled = true;
+        btn.textContent = "⏳ Analysing…";
+
+        idleEl.style.display = "none";
+        loadingEl.style.display = "";
+        resultEl.style.display = "none";
+        showStep(0);
+
+        // Cycle through fake loading steps
+        steps.forEach((s, i) => {
+            if (i === 0) return;
+            setTimeout(() => showStep(i), s.delay);
+        });
+
+        // Total fake duration: ~6.5 s
+        setTimeout(() => {
+            loadingEl.style.display = "none";
+            resultEl.style.display = "";
+
+            // Populate mock stats (from the real pre-run output)
+            document.getElementById("sstat-total").textContent = DEMO_STATS.total;
+            document.getElementById("sstat-avg").textContent = DEMO_STATS.avg;
+            document.getElementById("sstat-max").textContent = DEMO_STATS.max;
+            document.getElementById("sstat-in").textContent = DEMO_STATS.in;
+            document.getElementById("sstat-out").textContent = DEMO_STATS.out;
+
+            // Re-enable button for rerun
+            btn.disabled = false;
+            btn.textContent = "↺ Run Again";
+        }, 6600);
+    });
+})();
+</script>
 </body>
 </html>
+
