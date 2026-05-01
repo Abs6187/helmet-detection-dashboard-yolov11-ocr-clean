@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Vision Projects Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b1121;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-color: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --card-bg: rgba(30, 41, 59, 0.4);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Subtle Elegant Background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.05), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.05), transparent 40%);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+            flex-grow: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 5rem;
+            opacity: 0;
+            animation: fadeUp 1s var(--ease-out) forwards;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -1px;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Global Section Styles */
+        section {
+            margin-bottom: 6rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s var(--ease-out) forwards;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 2.5rem;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        /* Team Section */
+        .team-grid {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .team-member {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 0.8rem 2rem;
+            border-radius: 100px;
+            font-weight: 500;
+            transition: all 0.4s var(--ease-out);
+            cursor: default;
+        }
+
+        .team-member:hover {
+            background: rgba(56, 189, 248, 0.08);
+            border-color: rgba(56, 189, 248, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Skills Section */
+        .skills-grid {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .skill-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.7rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            transition: all 0.4s var(--ease-out);
+            display: flex;
+            align-items: center;
+        }
+        
+        .skill-badge:hover {
+            border-color: var(--accent-color);
+            background: rgba(56, 189, 248, 0.05);
+            transform: translateY(-2px);
+        }
+
+        /* Timeline Section */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+        }
+
+        .timeline-item {
+            padding: 0 40px 40px 40px;
+            position: relative;
+            width: 50%;
+        }
+
+        .timeline-item.left { left: 0; text-align: right; }
+        .timeline-item.right { left: 50%; text-align: left; }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: var(--bg-color);
+            border: 2px solid var(--accent-color);
+            top: 5px;
+            border-radius: 50%;
+            z-index: 1;
+            transition: all 0.3s var(--ease-out);
+        }
+
+        .timeline-item.left::after { right: -6px; }
+        .timeline-item.right::after { left: -6px; }
+
+        .timeline-item:hover::after {
+            background-color: var(--accent-color);
+            transform: scale(1.3);
+        }
+
+        .timeline-content {
+            transition: all 0.4s var(--ease-out);
+        }
+        
+        .timeline-content h3 {
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .timeline-content .semester {
+            display: inline-block;
+            color: var(--accent-color);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .timeline-content p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Projects Cards */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: var(--text-color);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.5s var(--ease-out);
+            position: relative;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(40, 53, 75, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .project-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.8rem;
+        }
+
+        .project-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            flex-grow: 1;
+            margin-bottom: 1.5rem;
+        }
+
+        .project-link-indicator {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            font-weight: 500;
+            transition: all 0.3s var(--ease-out);
+        }
+
+        .project-link-indicator svg {
+            width: 16px;
+            height: 16px;
+            margin-left: 6px;
+            transition: transform 0.3s var(--ease-out);
+        }
+
+        .project-card:hover .project-link-indicator svg {
+            transform: translateX(4px);
+        }
+
+        /* Entry Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Animation Delays for Sections */
+        .team-section { animation-delay: 0.1s; }
+        .skills-section { animation-delay: 0.2s; }
+        .timeline-section { animation-delay: 0.3s; }
+        .projects-section { animation-delay: 0.4s; }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .container { padding: 3rem 1.5rem; }
+            
+            .timeline::after { left: 20px; }
+            .timeline-item { width: 100%; padding-left: 50px; padding-right: 0; text-align: left; }
+            .timeline-item.left::after, .timeline-item.right::after { left: 14px; }
+            .timeline-item.right { left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    
+    <div class="container">
+        <header>
+            <h1>AI Vision Projects</h1>
+            <p class="subtitle">Advanced Computer Vision Models &amp; Dashboards</p>
+        </header>
+
+        <section class="team-section">
+            <h2 class="section-title">Major Project Contributors</h2>
+            <div class="team-grid">
+                <div class="team-member">Abhay Gupta</div>
+                <div class="team-member">Aditi Lakhera</div>
+                <div class="team-member">Balraj Patel</div>
+                <div class="team-member">Bhumika Patel</div>
+            </div>
+        </section>
+
+        <section class="skills-section">
+            <h2 class="section-title">Technical Skills</h2>
+            <div class="skills-grid">
+                <div class="skill-badge">YOLOv11</div>
+                <div class="skill-badge">Computer Vision</div>
+                <div class="skill-badge">Optical Character Recognition (OCR)</div>
+                <div class="skill-badge">Python</div>
+                <div class="skill-badge">Flask</div>
+                <div class="skill-badge">OpenCV</div>
+                <div class="skill-badge">PyTorch</div>
+                <div class="skill-badge">Hugging Face</div>
+            </div>
+        </section>
+
+        <section class="timeline-section">
+            <h2 class="section-title">Project Timeline</h2>
+            <div class="timeline">
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <span class="semester">5th Semester</span>
+                        <h3>Minor Project Foundation</h3>
+                        <p>Initiated the Helmet Detection minor project. Explored and implemented YOLOv11 to successfully detect helmets on riders from higher vantage points.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <span class="semester">6th Semester</span>
+                        <h3>First Website & Expansion</h3>
+                        <p>Developed the first complete Helmet Detection dashboard. Integrated three core modules: Helmet Detection, Automatic Number Plate Recognition (ANPR), and OCR.</p>
+                    </div>
+                </div>
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <span class="semester">7th Semester</span>
+                        <h3>Vehicle Speed Estimation</h3>
+                        <p>Expanded our computer vision capabilities by creating a second comprehensive dashboard focusing on real-time vehicle speed estimation and counting.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <span class="semester">8th Semester</span>
+                        <h3>Tripling & Compliance Monitor</h3>
+                        <p>Finalized the suite with the Road Sentinel / Tripling Detection repository, creating a complete ecosystem for traffic violation monitoring.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="projects-section">
+            <h2 class="section-title">Project Resources & Interactive Dashboards</h2>
+            <div class="projects-grid">
+                <a href="https://huggingface.co/spaces/Abs6187/Helmet-License-Plate-Detection" target="_blank" class="project-card">
+                    <div class="project-title">Helmet License Plate Detection</div>
+                    <div class="project-desc">Automated system for detecting motorcycle riders without helmets and extracting their license plate numbers for traffic enforcement.</div>
+                    <div class="project-link-indicator">
+                        View Application 
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                </a>
+
+                <a href="https://huggingface.co/spaces/Abs6187/Vehicle_Speed_Estimation_and_Counting" target="_blank" class="project-card">
+                    <div class="project-title">Vehicle Speed Estimation &amp; Counting</div>
+                    <div class="project-desc">Real-time traffic analysis application that estimates vehicle speeds and maintains accurate traffic counts across multiple lanes.</div>
+                    <div class="project-link-indicator">
+                        View Application 
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                </a>
+
+                <a href="https://huggingface.co/spaces/Abs6187/roadsentinel-helmet-monitor" target="_blank" class="project-card">
+                    <div class="project-title">Road Sentinel Helmet Monitor</div>
+                    <div class="project-desc">Comprehensive monitoring dashboard for tracking helmet compliance using state-of-the-art deep learning detection models.</div>
+                    <div class="project-link-indicator">
+                        View Application 
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                </a>
+
+                <a href="/resources/IJRAR25B3370.pdf" target="_blank" class="project-card">
+                    <div class="project-title">Published Research Paper</div>
+                    <div class="project-desc">Real-Time Automated Helmet Detection and License Plate Recognition System Using YOLOv11 and OCR.</div>
+                    <div class="project-link-indicator">
+                        View PDF 
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                </a>
+
+                <a href="/resources/IJRAR_Certificate_IJRAR_314767_Abhay.pdf" target="_blank" class="project-card">
+                    <div class="project-title">Publication Certificate</div>
+                    <div class="project-desc">Official IJRAR publication certificate for our research on real-time automated helmet detection.</div>
+                    <div class="project-link-indicator">
+                        View Certificate 
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                </a>
+                
+                <a href="/resources/Helmet-Detection-Major-Project-1-Updated.pptx" target="_blank" class="project-card">
+                    <div class="project-title">Project Presentation</div>
+                    <div class="project-desc">Comprehensive slide deck detailing our methodology, architecture, and results for the Major Project.</div>
+                    <div class="project-link-indicator">
+                        Download PPTX 
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
