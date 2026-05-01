@@ -87,11 +87,7 @@
             animation: fadeIn 1.5s ease-out 0.5s both;
         }
 
-        /* Team Section */
-        .team-section {
-            margin-bottom: 5rem;
-        }
-
+        /* Section Global */
         .section-title {
             text-align: center;
             font-size: 2rem;
@@ -116,9 +112,13 @@
             transition: transform 0.3s ease;
         }
 
-        .team-section:hover .section-title::after,
-        .projects-section:hover .section-title::after {
+        section:hover .section-title::after {
             transform: scaleX(1);
+        }
+
+        /* Team Section */
+        .team-section {
+            margin-bottom: 5rem;
         }
 
         .team-grid {
@@ -154,6 +154,109 @@
             color: var(--accent-color);
         }
 
+        /* Timeline Section */
+        .timeline-section {
+            margin-bottom: 5rem;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background: rgba(56, 189, 248, 0.3);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1px;
+        }
+
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+            opacity: 0;
+            animation: slideUpFade 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        .timeline-item:nth-child(1) { animation-delay: 1.2s; }
+        .timeline-item:nth-child(2) { animation-delay: 1.4s; }
+        .timeline-item:nth-child(3) { animation-delay: 1.6s; }
+        .timeline-item:nth-child(4) { animation-delay: 1.8s; }
+
+        .timeline-item.left { left: 0; }
+        .timeline-item.right { left: 50%; }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            right: -10px;
+            background-color: var(--bg-color);
+            border: 4px solid var(--accent-color);
+            top: 25px;
+            border-radius: 50%;
+            z-index: 1;
+            box-shadow: 0 0 10px var(--accent-color);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item.right::after {
+            left: -10px;
+        }
+        
+        .timeline-item:hover::after {
+            background-color: var(--accent-color);
+            box-shadow: 0 0 20px var(--accent-color);
+            transform: scale(1.2);
+        }
+
+        .timeline-content {
+            padding: 1.5rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-item:hover .timeline-content {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2);
+        }
+
+        .timeline-content h3 {
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .timeline-content .semester {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-color);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+        
+        .timeline-content p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
         /* Projects Section */
         .projects-section {
             margin-top: 2rem;
@@ -186,9 +289,9 @@
             transition: transform 0.3s ease;
         }
         
-        .project-card:nth-child(1) { animation-delay: 1.8s; }
-        .project-card:nth-child(2) { animation-delay: 2.0s; }
-        .project-card:nth-child(3) { animation-delay: 2.2s; }
+        .project-card:nth-child(1) { animation-delay: 2.0s; }
+        .project-card:nth-child(2) { animation-delay: 2.2s; }
+        .project-card:nth-child(3) { animation-delay: 2.4s; }
 
         .project-card::before {
             content: '';
@@ -296,6 +399,11 @@
             .container { padding: 2rem 1rem; }
             .team-grid { gap: 1rem; }
             .team-member { padding: 0.8rem 1.5rem; font-size: 0.9rem; }
+            
+            .timeline::after { left: 31px; }
+            .timeline-item { width: 100%; padding-left: 70px; padding-right: 25px; }
+            .timeline-item.left::after, .timeline-item.right::after { left: 21px; }
+            .timeline-item.right { left: 0%; }
         }
     </style>
 </head>
@@ -318,8 +426,42 @@
             </div>
         </section>
 
+        <section class="timeline-section">
+            <h2 class="section-title">Project Timeline</h2>
+            <div class="timeline">
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <span class="semester">5th Semester</span>
+                        <h3>Minor Project Foundation</h3>
+                        <p>Initiated the Helmet Detection minor project. Explored and implemented YOLOv11 to successfully detect helmets on riders from higher vantage points.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <span class="semester">6th Semester</span>
+                        <h3>First Website & Expansion</h3>
+                        <p>Developed the first complete Helmet Detection dashboard. Integrated three core modules: Helmet Detection, Automatic Number Plate Recognition (ANPR), and OCR.</p>
+                    </div>
+                </div>
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <span class="semester">7th Semester</span>
+                        <h3>Vehicle Speed Estimation</h3>
+                        <p>Expanded our computer vision capabilities by creating a second comprehensive dashboard focusing on real-time vehicle speed estimation and counting.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <span class="semester">8th Semester</span>
+                        <h3>Tripling & Compliance Monitor</h3>
+                        <p>Finalized the suite with the Road Sentinel / Tripling Detection repository, creating a complete ecosystem for traffic violation monitoring.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="projects-section">
-            <h2 class="section-title">Interactive Dashboards</h2>
+            <h2 class="section-title">Project Resources & Interactive Dashboards</h2>
             <div class="projects-grid">
                 <a href="https://huggingface.co/spaces/Abs6187/Helmet-License-Plate-Detection" target="_blank" class="project-card">
                     <div class="card-content">
