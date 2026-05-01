@@ -63,28 +63,33 @@
         header {
             text-align: center;
             margin-bottom: 4rem;
-            animation: fadeInDown 1s ease-out;
         }
 
         h1 {
             font-size: 3.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #38bdf8, #8b5cf6);
+            background: linear-gradient(135deg, #38bdf8, #8b5cf6, #38bdf8);
+            background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 1rem;
+            animation: shine 3s linear infinite, slideDown 1s ease-out;
+        }
+        
+        @keyframes shine {
+            to { background-position: 200% center; }
         }
 
         .subtitle {
             font-size: 1.2rem;
             color: #94a3b8;
             font-weight: 300;
+            animation: fadeIn 1.5s ease-out 0.5s both;
         }
 
         /* Team Section */
         .team-section {
             margin-bottom: 5rem;
-            animation: fadeInUp 1s ease-out 0.2s both;
         }
 
         .section-title {
@@ -96,6 +101,7 @@
             display: inline-block;
             left: 50%;
             transform: translateX(-50%);
+            animation: fadeIn 1s ease-out 0.8s both;
         }
 
         .section-title::after {
@@ -110,7 +116,8 @@
             transition: transform 0.3s ease;
         }
 
-        .team-section:hover .section-title::after {
+        .team-section:hover .section-title::after,
+        .projects-section:hover .section-title::after {
             transform: scaleX(1);
         }
 
@@ -131,17 +138,25 @@
             letter-spacing: 0.5px;
             transition: all 0.3s ease;
             cursor: default;
+            opacity: 0;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
+        
+        .team-member:nth-child(1) { animation-delay: 1.0s; }
+        .team-member:nth-child(2) { animation-delay: 1.2s; }
+        .team-member:nth-child(3) { animation-delay: 1.4s; }
+        .team-member:nth-child(4) { animation-delay: 1.6s; }
 
         .team-member:hover {
-            transform: translateY(-5px);
+            transform: translateY(-5px) scale(1.05);
             border-color: var(--accent-color);
-            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.1);
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.3);
+            color: var(--accent-color);
         }
 
         /* Projects Section */
         .projects-section {
-            animation: fadeInUp 1s ease-out 0.4s both;
+            margin-top: 2rem;
         }
 
         .projects-grid {
@@ -163,8 +178,17 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
-            group: card;
+            opacity: 0;
+            animation: slideUpFade 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
+        
+        .project-card .card-content {
+            transition: transform 0.3s ease;
+        }
+        
+        .project-card:nth-child(1) { animation-delay: 1.8s; }
+        .project-card:nth-child(2) { animation-delay: 2.0s; }
+        .project-card:nth-child(3) { animation-delay: 2.2s; }
 
         .project-card::before {
             content: '';
@@ -173,35 +197,49 @@
             left: -100%;
             width: 50%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
-            transition: left 0.5s ease;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.7s ease;
+            z-index: 1;
         }
 
         .project-card:hover {
-            transform: translateY(-10px) scale(1.02);
+            transform: translateY(-15px) scale(1.03);
             border-color: var(--accent-color);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(56, 189, 248, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 25px rgba(56, 189, 248, 0.3);
+            animation: pulseGlow 2s infinite alternate;
+            animation-delay: 0.4s; /* allow transform transition to finish first */
         }
 
         .project-card:hover::before {
             left: 200%;
+            transition: left 0.7s ease;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.2); }
+            100% { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 35px rgba(56, 189, 248, 0.5); }
         }
 
         .project-title {
             font-size: 1.4rem;
             font-weight: 600;
             margin-bottom: 1rem;
-            transition: color 0.3s ease;
+            transition: color 0.3s ease, transform 0.3s ease;
+            position: relative;
+            z-index: 2;
         }
 
         .project-card:hover .project-title {
             color: var(--accent-color);
+            transform: translateX(5px);
         }
 
         .project-desc {
             color: #94a3b8;
             font-size: 0.95rem;
             font-weight: 300;
+            position: relative;
+            z-index: 2;
         }
 
         .project-link-indicator {
@@ -213,6 +251,8 @@
             font-weight: 600;
             opacity: 0.8;
             transition: opacity 0.3s ease;
+            position: relative;
+            z-index: 2;
         }
 
         .project-link-indicator svg {
@@ -227,17 +267,27 @@
         }
 
         .project-card:hover .project-link-indicator svg {
-            transform: translateX(5px);
+            transform: translateX(8px);
         }
 
-        /* Animations */
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
+        /* Entry Animations */
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-40px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(50px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -272,29 +322,35 @@
             <h2 class="section-title">Interactive Dashboards</h2>
             <div class="projects-grid">
                 <a href="https://huggingface.co/spaces/Abs6187/Helmet-License-Plate-Detection" target="_blank" class="project-card">
-                    <div class="project-title">Helmet License Plate Detection</div>
-                    <div class="project-desc">Automated system for detecting motorcycle riders without helmets and extracting their license plate numbers for traffic enforcement.</div>
-                    <div class="project-link-indicator">
-                        View Application 
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    <div class="card-content">
+                        <div class="project-title">Helmet License Plate Detection</div>
+                        <div class="project-desc">Automated system for detecting motorcycle riders without helmets and extracting their license plate numbers for traffic enforcement.</div>
+                        <div class="project-link-indicator">
+                            View Application 
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </div>
                     </div>
                 </a>
 
                 <a href="https://huggingface.co/spaces/Abs6187/Vehicle_Speed_Estimation_and_Counting" target="_blank" class="project-card">
-                    <div class="project-title">Vehicle Speed Estimation &amp; Counting</div>
-                    <div class="project-desc">Real-time traffic analysis application that estimates vehicle speeds and maintains accurate traffic counts across multiple lanes.</div>
-                    <div class="project-link-indicator">
-                        View Application 
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    <div class="card-content">
+                        <div class="project-title">Vehicle Speed Estimation &amp; Counting</div>
+                        <div class="project-desc">Real-time traffic analysis application that estimates vehicle speeds and maintains accurate traffic counts across multiple lanes.</div>
+                        <div class="project-link-indicator">
+                            View Application 
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </div>
                     </div>
                 </a>
 
                 <a href="https://huggingface.co/spaces/Abs6187/roadsentinel-helmet-monitor" target="_blank" class="project-card">
-                    <div class="project-title">Road Sentinel Helmet Monitor</div>
-                    <div class="project-desc">Comprehensive monitoring dashboard for tracking helmet compliance using state-of-the-art deep learning detection models.</div>
-                    <div class="project-link-indicator">
-                        View Application 
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    <div class="card-content">
+                        <div class="project-title">Road Sentinel Helmet Monitor</div>
+                        <div class="project-desc">Comprehensive monitoring dashboard for tracking helmet compliance using state-of-the-art deep learning detection models.</div>
+                        <div class="project-link-indicator">
+                            View Application 
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </div>
                     </div>
                 </a>
             </div>
