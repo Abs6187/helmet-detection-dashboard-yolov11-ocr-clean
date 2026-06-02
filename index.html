@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligence System Hub | ANPR & Helmet Detection</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #030508;
+            --bg-panel: #0a0f16;
+            --grid-line: rgba(0, 243, 255, 0.05);
+            --accent-cyan: #00f3ff;
+            --accent-cyan-dim: rgba(0, 243, 255, 0.2);
+            --accent-amber: #ffb000;
+            --text-primary: #e0f8f9;
+            --text-secondary: #6b8a95;
+            --border-tech: 1px solid rgba(0, 243, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            /* Cyber grid background */
+            background-image: 
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center top;
+        }
+
+        ::selection {
+            background: var(--accent-cyan);
+            color: var(--bg-base);
+        }
+
+        /* Decorative top bar */
+        .sys-top-bar {
+            height: 4px;
+            width: 100%;
+            background: linear-gradient(90deg, var(--bg-base), var(--accent-cyan), var(--accent-amber), var(--bg-base));
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            box-shadow: 0 0 15px var(--accent-cyan);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            width: 100%;
+        }
+
+        header {
+            margin-bottom: 5rem;
+            position: relative;
+            animation: glitchFade 1s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        header::before {
+            content: "SYS.INIT //";
+            position: absolute;
+            top: -1.5rem;
+            left: 0;
+            color: var(--accent-cyan);
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            opacity: 0.7;
+        }
+
+        h1 {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: clamp(3rem, 5vw, 5rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            color: var(--text-primary);
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: 10px;
+            right: -20px;
+            width: 15px;
+            height: 15px;
+            background-color: var(--accent-amber);
+            animation: blink 1s infinite step-end;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 650px;
+            line-height: 1.6;
+            border-left: 2px solid var(--accent-cyan);
+            padding-left: 1.5rem;
+        }
+
+        .author-tag {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-panel);
+            border: var(--border-tech);
+            color: var(--accent-cyan);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .section-header h2 {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+            padding-right: 1.5rem;
+            background: var(--bg-base);
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-header::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--accent-cyan-dim),
+                var(--accent-cyan-dim) 4px,
+                transparent 4px,
+                transparent 8px
+            );
+            z-index: 0;
+        }
+
+        .status-box {
+            background: var(--bg-panel);
+            border: var(--border-tech);
+            padding: 1.5rem 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+        }
+
+        .status-box::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--accent-amber);
+        }
+
+        .status-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .status-label {
+            color: var(--accent-amber);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-value {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 5rem;
+        }
+
+        .module-card {
+            background: var(--bg-panel);
+            border: var(--border-tech);
+            padding: 2rem;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+        }
+
+        .grid-layout > .module-card:nth-child(1) { animation-delay: 0.1s; }
+        .grid-layout > .module-card:nth-child(2) { animation-delay: 0.2s; }
+        .grid-layout > .module-card:nth-child(3) { animation-delay: 0.3s; }
+        .grid-layout > .module-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 10px 30px -10px rgba(0, 243, 255, 0.15);
+        }
+
+        /* Tech corners */
+        .module-card::before, .module-card::after {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border: 1px solid var(--accent-cyan);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .module-card::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+        .module-card::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+        .module-card:hover::before, .module-card:hover::after {
+            opacity: 1;
+        }
+
+        .module-port {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            background: rgba(0, 243, 255, 0.1);
+            padding: 0.25rem 0.75rem;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        .module-title {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-right: 4rem;
+        }
+
+        .module-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            flex-grow: 1;
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tech-pill {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .btn-launch {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-launch::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--accent-cyan);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .btn-launch:hover {
+            color: var(--bg-base);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+        }
+
+        .btn-launch:hover::before {
+            left: 0;
+        }
+
+        .btn-launch svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-launch:hover svg {
+            transform: translateX(4px);
+        }
+
+        .btn-cloud {
+            border-color: var(--accent-amber);
+            color: var(--accent-amber);
+        }
+
+        .btn-cloud::before {
+            background: var(--accent-amber);
+        }
+
+        .btn-cloud:hover {
+            color: var(--bg-base);
+            box-shadow: 0 0 15px rgba(255, 176, 0, 0.4);
+        }
+
+        footer {
+            margin-top: auto;
+            padding-top: 4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        /* Demo Section */
+        .demo-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .demo-layout { grid-template-columns: 1fr; }
+        }
+
+        .demo-panel {
+            background: var(--bg-panel);
+            border: var(--border-tech);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .demo-panel-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .demo-panel-title {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .demo-panel-tag {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .demo-panel iframe {
+            display: block;
+            width: 100%;
+            min-height: 541px;
+            border: none;
+        }
+
+        .paper-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+            background: var(--bg-panel);
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .paper-link::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: var(--accent-cyan);
+        }
+
+        .paper-link:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+
+        .paper-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .paper-label {
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .paper-name {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        /* Contributors */
+        .contributors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 5rem;
+        }
+
+        .contributor-card {
+            background: var(--bg-panel);
+            border: var(--border-tech);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            transition: all 0.25s ease;
+        }
+
+        .contributor-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-3px);
+        }
+
+        .contributor-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid var(--accent-cyan-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            flex-shrink: 0;
+        }
+
+        .contributor-name {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .contributor-role {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+            text-transform: uppercase;
+        }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-bottom: 5rem;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 11px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: repeating-linear-gradient(
+                180deg,
+                var(--accent-cyan-dim),
+                var(--accent-cyan-dim) 4px,
+                transparent 4px,
+                transparent 8px
+            );
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 24px 1fr;
+            gap: 1.5rem;
+            padding-bottom: 2.5rem;
+        }
+
+        .timeline-item:last-child { padding-bottom: 0; }
+
+        .timeline-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-base);
+            border: 2px solid var(--accent-cyan);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+            margin-top: 0.25rem;
+        }
+
+        .timeline-content {
+            background: var(--bg-panel);
+            border: var(--border-tech);
+            padding: 1.5rem 2rem;
+            position: relative;
+        }
+
+        .timeline-sem {
+            font-size: 0.8rem;
+            color: var(--accent-amber);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-title {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .timeline-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Inspiration Panel */
+        .inspiration-panel {
+            margin-bottom: 5rem;
+        }
+
+        .inspiration-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .inspiration-layout { grid-template-columns: 1fr; }
+        }
+
+        .inspiration-video-wrap {
+            position: relative;
+            border: var(--border-tech);
+            overflow: hidden;
+            background: var(--bg-panel);
+        }
+
+        .inspiration-video-wrap .demo-panel-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .inspiration-video {
+            display: block;
+            width: 100%;
+            height: auto;
+            border: none;
+        }
+
+        .inspiration-info {
+            background: var(--bg-panel);
+            border: var(--border-tech);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .inspiration-badge {
+            font-size: 0.78rem;
+            color: var(--accent-amber);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .inspiration-headline {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: clamp(1.4rem, 2.5vw, 2rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .inspiration-body {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .inspiration-divider {
+            height: 1px;
+            background: repeating-linear-gradient(90deg, var(--accent-cyan-dim), var(--accent-cyan-dim) 4px, transparent 4px, transparent 8px);
+        }
+
+        .inspiration-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .inspiration-stat-label {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .inspiration-stat-value {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.1rem;
+            color: var(--accent-cyan);
+        }
+
+        .inspiration-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Keyframes */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @keyframes glitchFade {
+            0% { opacity: 0; transform: translateY(-10px) skewX(10deg); filter: blur(4px); }
+            100% { opacity: 1; transform: translateY(0) skewX(0); filter: blur(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Glitch effect on hover for H1 */
+        h1:hover {
+            animation: rgbShift 0.3s infinite alternate;
+        }
+
+        @keyframes rgbShift {
+            0% { text-shadow: 2px 0 var(--accent-cyan), -2px 0 var(--accent-amber); }
+            100% { text-shadow: -2px 0 var(--accent-cyan), 2px 0 var(--accent-amber); }
+        }
+    </style>
+</head>
+<body>
+    <div class="sys-top-bar"></div>
+    
+    <div class="container">
+        <header>
+            <h1>Intelligence<br>System Hub</h1>
+            <p class="subtitle">Automated Real-Time Traffic Surveillance Network. Aggregating YOLOv11 and OCR telemetry for Helmet Detection, ANPR, and Velocity Tracking protocols.</p>
+            <div class="author-tag">ENG: Abhay Gupta (Abs6187) // BUILD: 2026.06</div>
+        </header>
+
+        <!-- Cloud Uplink -->
+        <section>
+            <div class="section-header">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2" stroke-linecap="square"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    Cloud Uplink
+                </h2>
+            </div>
+            
+            <div class="grid-layout">
+                <div class="module-card">
+                    <h3 class="module-title">Flask Review Dashboard</h3>
+                    <p class="module-desc">Centralized command center tracking no-helmet and triple-riding violations across all remote nodes.</p>
+                    <div class="tech-stack">
+                        <span class="tech-pill">Flask 3.1+</span>
+                        <span class="tech-pill">YOLOv11</span>
+                        <span class="tech-pill">Torch 2.6+</span>
+                    </div>
+                    <a href="https://helmet-detection-dashboard-yolov11-ocr.onrender.com/" target="_blank" class="btn-launch btn-cloud">
+                        ESTABLISH LINK
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </div>
+
+                <div class="module-card">
+                    <h3 class="module-title">GitHub Pages Dashboard</h3>
+                    <p class="module-desc">Live static dashboard hosted on GitHub Pages. Central hub for all project links and documentation.</p>
+                    <div class="tech-stack">
+                        <span class="tech-pill">GitHub Pages</span>
+                        <span class="tech-pill">HTML</span>
+                        <span class="tech-pill">Static</span>
+                    </div>
+                    <a href="https://abs6187.github.io/helmet-detection-dashboard-yolov11-ocr-clean/" target="_blank" class="btn-launch btn-cloud">
+                        VIEW LIVE PAGE
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </div>
+
+                <div class="module-card">
+                    <h3 class="module-title">GitHub Repository</h3>
+                    <p class="module-desc">Source code, model weights, and full project documentation for the YOLOv11 ANPR & Helmet Detection suite by Abs6187.</p>
+                    <div class="tech-stack">
+                        <span class="tech-pill">GitHub</span>
+                        <span class="tech-pill">Open Source</span>
+                        <span class="tech-pill">AGPL-3.0</span>
+                    </div>
+                    <a href="https://github.com/Abs6187/helmet-detection-dashboard-yolov11-ocr-clean" target="_blank" class="btn-launch btn-cloud">
+                        VIEW SOURCE
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </div>
+
+                <div class="module-card">
+                    <h3 class="module-title">Helmet & License Plate</h3>
+                    <p class="module-desc">Remote Inference Node hosted on Hugging Face infrastructure.</p>
+                    <div class="tech-stack">
+                        <span class="tech-pill">Gradio</span>
+                        <span class="tech-pill">HF Spaces</span>
+                    </div>
+                    <a href="https://huggingface.co/spaces/Abs6187/Helmet-License-Plate-Detection" target="_blank" class="btn-launch btn-cloud">
+                        ESTABLISH LINK
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </div>
+
+                <div class="module-card">
+                    <h3 class="module-title">Road Sentinel</h3>
+                    <p class="module-desc">Remote Inference Node hosted on Hugging Face infrastructure.</p>
+                    <div class="tech-stack">
+                        <span class="tech-pill">Gradio</span>
+                        <span class="tech-pill">HF Spaces</span>
+                    </div>
+                    <a href="https://huggingface.co/spaces/Abs6187/roadsentinel-helmet-monitor" target="_blank" class="btn-launch btn-cloud">
+                        ESTABLISH LINK
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </div>
+
+                <div class="module-card">
+                    <h3 class="module-title">Speed & Counting</h3>
+                    <p class="module-desc">Remote Inference Node hosted on Hugging Face infrastructure.</p>
+                    <div class="tech-stack">
+                        <span class="tech-pill">Gradio</span>
+                        <span class="tech-pill">HF Spaces</span>
+                    </div>
+                    <a href="https://huggingface.co/spaces/Abs6187/Vehicle_Speed_Estimation_and_Counting" target="_blank" class="btn-launch btn-cloud">
+                        ESTABLISH LINK
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-header">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2" stroke-linecap="square"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                    Local Array
+                </h2>
+            </div>
+
+            <div class="status-box">
+                <div class="status-text">
+                    <span class="status-label">Operation Directive</span>
+                    <span class="status-value">Execute `run_all.bat` to initialize local tensor streams. Port mapping required for subsystem access.</span>
+                </div>
+            </div>
+
+            <div class="grid-layout">
+                <div class="module-card">
+                    <div class="module-port">PORT:7861</div>
+                    <h3 class="module-title">Helmet & License Plate</h3>
+                    <p class="module-desc">Core subsystem. Processes visual feeds to detect safety equipment compliance and extracts alphanumeric plate data via OCR.</p>
+                    <a href="http://127.0.0.1:7861" target="_blank" class="btn-launch">
+                        INIT SEQUENCE
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path></svg>
+                    </a>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-port">PORT:7862</div>
+                    <h3 class="module-title">Road Sentinel</h3>
+                    <p class="module-desc">Continuous traffic monitoring daemon. Flags violations in high-throughput environments in real-time.</p>
+                    <a href="http://127.0.0.1:7862" target="_blank" class="btn-launch">
+                        INIT SEQUENCE
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path></svg>
+                    </a>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-port">PORT:7863</div>
+                    <h3 class="module-title">Velocity & Counting</h3>
+                    <p class="module-desc">Statistical analytics node. Tracks entity vectors to estimate velocity and aggregates total traffic volume.</p>
+                    <a href="http://127.0.0.1:7863" target="_blank" class="btn-launch">
+                        INIT SEQUENCE
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Demo Section -->
+        <section>
+            <div class="section-header">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2" stroke-linecap="square"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                    Live Demo Feed
+                </h2>
+            </div>
+
+            <div class="demo-layout">
+                <div class="demo-panel">
+                    <div class="demo-panel-header">
+                        <span class="demo-panel-title">Speed Estimation — Demo Video</span>
+                        <span class="demo-panel-tag">LOCAL // MP4</span>
+                    </div>
+                    <video src="assets/speed_demo.mp4" controls autoplay muted loop style="display:block; width:100%; border:none;"></video>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                    <div class="demo-panel" style="padding:2rem;">
+                        <div style="font-size:0.8rem; color:var(--accent-cyan); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.75rem;">Module Focus</div>
+                        <div style="font-family:'Chakra Petch',sans-serif; font-size:1.4rem; color:var(--text-primary); margin-bottom:1rem;">Vehicle Speed Estimation & Counting</div>
+                        <p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.7;">Demonstrates real-time tracking of vehicle vectors using YOLOv11. The system estimates per-vehicle speed (km/h) and maintains an accurate running count of traffic volume across defined detection zones.</p>
+                    </div>
+                    <a href="https://helmet-detection-dashboard-yolov11-ocr.onrender.com/resources/IJRAR25B3370.pdf" target="_blank" class="paper-link">
+                        <div class="paper-meta">
+                            <span class="paper-label">Research Publication</span>
+                            <span class="paper-name">IJRAR25B3370.pdf</span>
+                            <span style="font-size:0.78rem; color:var(--text-secondary); margin-top:0.25rem;">View full published paper →</span>
+                        </div>
+                        <svg width="28" height="28" fill="none" stroke="var(--accent-cyan)" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="square" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inspiration Section -->
+        <section>
+            <div class="section-header">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2" stroke-linecap="square"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    Inspiration
+                </h2>
+            </div>
+
+            <div class="inspiration-panel">
+                <div class="inspiration-layout">
+                    <div class="inspiration-video-wrap">
+                        <div class="demo-panel-header">
+                            <span class="demo-panel-title">Project Demo — Full Video</span>
+                            <span class="demo-panel-tag">LOCAL // MP4</span>
+                        </div>
+                        <video src="assets/demo.mp4" controls autoplay muted loop playsinline class="inspiration-video"></video>
+                    </div>
+
+                    <div class="inspiration-info">
+                        <div class="inspiration-badge">⬡ PROJECT DEMO</div>
+                        <div class="inspiration-headline">What Started It All</div>
+                        <p class="inspiration-body">The foundational experiment that proved real-time helmet and license plate detection was achievable on constrained hardware. This demo captured the moment the pipeline first worked end-to-end — and set the trajectory for the entire suite.</p>
+                        <div class="inspiration-divider"></div>
+                        <div class="inspiration-stats">
+                            <div class="inspiration-stat">
+                                <span class="inspiration-stat-label">Model</span>
+                                <span class="inspiration-stat-value">YOLOv11</span>
+                            </div>
+                            <div class="inspiration-stat">
+                                <span class="inspiration-stat-label">Task</span>
+                                <span class="inspiration-stat-value">Helmet + ANPR</span>
+                            </div>
+                            <div class="inspiration-stat">
+                                <span class="inspiration-stat-label">Inference</span>
+                                <span class="inspiration-stat-value">Real-Time</span>
+                            </div>
+                            <div class="inspiration-stat">
+                                <span class="inspiration-stat-label">Hardware</span>
+                                <span class="inspiration-stat-value">CPU Only</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section>
+            <div class="section-header">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2" stroke-linecap="square"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    Major Project Contributors
+                </h2>
+            </div>
+
+            <div class="contributors-grid">
+                <div class="contributor-card">
+                    <div class="contributor-avatar">AG</div>
+                    <div>
+                        <div class="contributor-name">Abhay Gupta</div>
+                        <div class="contributor-role">Lead Engineer</div>
+                    </div>
+                </div>
+                <div class="contributor-card">
+                    <div class="contributor-avatar">AL</div>
+                    <div>
+                        <div class="contributor-name">Aditi Lakhera</div>
+                        <div class="contributor-role">Research & Dev</div>
+                    </div>
+                </div>
+                <div class="contributor-card">
+                    <div class="contributor-avatar">BP</div>
+                    <div>
+                        <div class="contributor-name">Balraj Patel</div>
+                        <div class="contributor-role">Research & Dev</div>
+                    </div>
+                </div>
+                <div class="contributor-card">
+                    <div class="contributor-avatar">BP</div>
+                    <div>
+                        <div class="contributor-name">Bhumika Patel</div>
+                        <div class="contributor-role">Research & Dev</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Project Timeline Section -->
+        <section>
+            <div class="section-header">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2" stroke-linecap="square"><line x1="12" y1="2" x2="12" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    Project Timeline
+                </h2>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-sem">5th Semester</div>
+                        <div class="timeline-title">Minor Project Foundation</div>
+                        <p class="timeline-desc">Initiated the Helmet Detection minor project. Explored and implemented YOLOv11 to successfully detect helmets on riders from higher vantage points.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-sem">6th Semester</div>
+                        <div class="timeline-title">First Website & Expansion</div>
+                        <p class="timeline-desc">Developed the first complete Helmet Detection dashboard. Integrated three core modules: Helmet Detection, Automatic Number Plate Recognition (ANPR), and OCR.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-sem">7th Semester</div>
+                        <div class="timeline-title">Vehicle Speed Estimation</div>
+                        <p class="timeline-desc">Expanded our computer vision capabilities by creating a second comprehensive dashboard focusing on real-time vehicle speed estimation and counting.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot" style="border-color:var(--accent-amber); box-shadow:0 0 10px rgba(255,176,0,0.4);"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-sem">8th Semester</div>
+                        <div class="timeline-title">Tripling & Compliance Monitor</div>
+                        <p class="timeline-desc">Finalized the suite with the Road Sentinel / Tripling Detection repository, creating a complete ecosystem for traffic violation monitoring.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div>SYSTEM VER 2026.06.02 // <a href="https://github.com/Abs6187" target="_blank" style="color:var(--accent-cyan); text-decoration:none;">GITHUB: Abs6187</a></div>
+            <div>&copy; ABHAY GUPTA // ALL RIGHTS RESERVED</div>
+        </footer>
+    </div>
+</body>
+</html>
